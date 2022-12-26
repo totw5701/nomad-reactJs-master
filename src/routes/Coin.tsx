@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { Link, Route, Switch, useLocation, useParams, useRouteMatch } from "react-router-dom";
+import {
+  Link,
+  Route,
+  Switch,
+  useLocation,
+  useParams,
+  useRouteMatch,
+} from "react-router-dom";
 import styled from "styled-components";
 import Price from "./Price";
 import Chart from "./Chart";
+import { useQuery } from "react-query";
+import { fetchCoins, fetchCoinInfo, fetchCoinTicker } from "./../api";
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -142,9 +151,10 @@ const Tabs = styled.div`
   gap: 15px;
 `;
 
-const Tab = styled.span<{isActive:boolean}>`
+const Tab = styled.span<{ isActive: boolean }>`
   text-align: center;
-  background-color: ${props => props.isActive ? props.theme.accentColor : (props.theme.boxColor)};
+  background-color: ${(props) =>
+    props.isActive ? props.theme.accentColor : props.theme.boxColor};
   padding: 5px;
   border-radius: 10px;
   font-weight: 600;
@@ -156,26 +166,36 @@ const Tab = styled.span<{isActive:boolean}>`
 `;
 
 function Coin() {
-  const [loading, setLoading] = useState(true);
   const { coinId } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
-  const [infoData, setInfoData] = useState<InfoData>();
-  const [priceData, setPriceData] = useState<PriceData>();
   const priceMatch = useRouteMatch("/:coinId/price");
   const chartMatch = useRouteMatch("/:coinId/chart");
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId)
+  );
+  const { isLoading: tickersLoading, data: tickerData } = useQuery<PriceData>(
+    ["ticker", coinId],
+    () => fetchCoinTicker(coinId)
+  );
+  const loading = infoLoading || tickersLoading;
+  /*  const [loading, setLoading] = useState(true);
+  const [infoData, setInfoData] = useState<InfoData>();
+  const [tickerData, setPriceData] = useState<PriceData>();
   useEffect(() => {
     (async () => {
       const infoData = await (
         await fetch(`https://api.coinpaprika.com/v1/coins/${coinId}`)
       ).json();
-      const priceData = await (
+      const tickerData = await (
         await fetch(`https://api.coinpaprika.com/v1/tickers/${coinId}`)
       ).json();
       setInfoData(infoData);
-      setPriceData(priceData);
+      setPriceData(tickerData);
       setLoading(false);
     })();
   }, []);
+*/
   return (
     <Container>
       <Header>
@@ -209,11 +229,11 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>TOTAL SUPLY:</span>
-              <span>{priceData?.total_supply}</span>
+              <span>{tickerData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>MAX SUPLY:</span>
-              <span>{priceData?.max_supply}</span>
+              <span>{tickerData?.max_supply}</span>
             </OverviewItem>
           </Overview>
 

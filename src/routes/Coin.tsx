@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import {
   Link,
   Route,
@@ -12,6 +11,10 @@ import Price from "./Price";
 import Chart from "./Chart";
 import { useQuery } from "react-query";
 import { fetchCoins, fetchCoinInfo, fetchCoinTicker } from "./../api";
+import { Helmet } from "react-helmet";
+import type { PriceData } from "../model/PriceData";
+import type { InfoData } from "../model/InfoData";
+
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -21,10 +24,9 @@ const Container = styled.div`
 
 const Header = styled.header`
   height: 10vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-bottom: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
 `;
 
 const Title = styled.h1`
@@ -45,75 +47,6 @@ interface RouteParams {
 
 interface RouteState {
   name: string;
-}
-
-interface ITag {
-  coin_counter: number;
-  ico_counter: number;
-  id: string;
-  name: string;
-}
-
-interface InfoData {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
-  contract: string;
-  platform: string;
-  contracts: object;
-  logo: string;
-  parent: object;
-  tags: ITag[];
-  description: string;
-  message: string;
-  open_source: boolean;
-  started_at: string;
-  development_status: string;
-  hardware_wallet: boolean;
-  proof_type: string;
-  org_structure: string;
-  hash_algorithm: string;
-  whitepaper: object;
-  first_data_at: string;
-  last_data_at: string;
-}
-
-interface PriceData {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  circulating_supply: number;
-  total_supply: number;
-  max_supply: number;
-  beta_value: number;
-  first_data_at: string;
-  last_updated: string;
-  quotes: {
-    USD: {
-      ath_date: string;
-      ath_price: number;
-      market_cap: number;
-      market_cap_change_24h: number;
-      percent_change_1h: number;
-      percent_change_1y: number;
-      percent_change_6h: number;
-      percent_change_7d: number;
-      percent_change_12h: number;
-      percent_change_15m: number;
-      percent_change_24h: number;
-      percent_change_30d: number;
-      percent_change_30m: number;
-      percent_from_price_ath: number;
-      price: number;
-      volume_24h: number;
-      volume_24h_change_24h: number;
-    };
-  };
 }
 
 const Overview = styled.article`
@@ -165,6 +98,12 @@ const Tab = styled.span<{ isActive: boolean }>`
   }
 `;
 
+const BackPage = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: left;
+`;
+
 function Coin() {
   const { coinId } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
@@ -176,7 +115,8 @@ function Coin() {
   );
   const { isLoading: tickersLoading, data: tickerData } = useQuery<PriceData>(
     ["ticker", coinId],
-    () => fetchCoinTicker(coinId)
+    () => fetchCoinTicker(coinId),
+    { refetchInterval: 5000 } //5000마다 조회
   );
   const loading = infoLoading || tickersLoading;
   /*  const [loading, setLoading] = useState(true);
@@ -198,7 +138,15 @@ function Coin() {
 */
   return (
     <Container>
+      <Helmet>
+        <title>
+          {state?.name ? state.name : loading ? "Loading ..." : infoData?.name}
+        </title>
+      </Helmet>
       <Header>
+        <BackPage>
+          <Link to="/">BACK</Link>
+        </BackPage>
         <Title>
           {state?.name ? state.name : loading ? "Loading ..." : infoData?.name}
         </Title>
@@ -217,8 +165,8 @@ function Coin() {
               <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>OPEN SOURCE:</span>
-              <span>{infoData?.open_source ? "YES" : "NO"}</span>
+              <span>PRICE:</span>
+              <span>{tickerData?.quotes.USD.price.toFixed(3)}</span>
             </OverviewItem>
           </Overview>
 
@@ -248,10 +196,10 @@ function Coin() {
 
           <Switch>
             <Route path="/:coinId/price">
-              <Price />
+              <Price priceData={tickerData} infoData={infoData} />
             </Route>
             <Route path="/:coinId/chart">
-              <Chart />
+              <Chart coinId={coinId} />
             </Route>
           </Switch>
         </>

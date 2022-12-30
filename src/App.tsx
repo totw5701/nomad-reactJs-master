@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components";
 import Router from "./router";
 
 import { ReactQueryDevtools } from 'react-query/devtools'
+import { Helmet } from "react-helmet";
 
 
 const GlobalStyle = createGlobalStyle`
@@ -38,6 +39,8 @@ const GlobalStyle = createGlobalStyle`
 function App() {
   return (
     <>
+    <Helmet><script src="https://kit.fontawesome.com/65bbb27fea.js" crossOrigin="anonymous"></script>
+</Helmet>
       <Router />
       <GlobalStyle />
       <ReactQueryDevtools initialIsOpen={true}/>

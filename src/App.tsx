@@ -1,9 +1,9 @@
 import { createGlobalStyle } from "styled-components";
 import Router from "./router";
-
-import { ReactQueryDevtools } from 'react-query/devtools'
-import { Helmet } from "react-helmet";
-
+import { ThemeProvider } from "styled-components";
+import { darkTheme, lightTheme } from "./theme";
+import { ReactQueryDevtools } from "react-query/devtools";
+import { useState } from "react";
 
 const GlobalStyle = createGlobalStyle`
 
@@ -27,8 +27,8 @@ const GlobalStyle = createGlobalStyle`
   }
   body {
     font-family: 'Source Sans Pro', sans-serif;
-    background-color: ${props => props.theme.bgColor};
-    color: ${props => props.theme.textColor};
+    background-color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.textColor};
   }
   a {
     text-decoration: none;
@@ -37,13 +37,15 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 function App() {
+  const [isDark, setIsDark] = useState(false);
+  const toggleDark = () => setIsDark((current) => !current);
   return (
     <>
-    <Helmet><script src="https://kit.fontawesome.com/65bbb27fea.js" crossOrigin="anonymous"></script>
-</Helmet>
-      <Router />
-      <GlobalStyle />
-      <ReactQueryDevtools initialIsOpen={true}/>
+      <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
+        <Router toggleDark={toggleDark} />
+        <GlobalStyle />
+        <ReactQueryDevtools initialIsOpen={true} />
+      </ThemeProvider>
     </>
   );
 }

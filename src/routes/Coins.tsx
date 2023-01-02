@@ -1,7 +1,11 @@
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-import { fetchCoins } from './../api';
+import { fetchCoins } from "./../api";
+
+interface ICoinProps {
+  toggleDark: () => void;
+}
 
 const Container = styled.div`
   padding: 0px 20px;
@@ -19,8 +23,9 @@ const Header = styled.header`
 const CoinList = styled.ul``;
 
 const Coin = styled.li`
-  background-color: white;
-  color: ${(props) => props.theme.bgColor};
+  background-color: ${(props) => props.theme.bgColor};
+  border: 1px solid ${(props) => props.theme.textColor};
+  color: ${(props) => props.theme.textColor};
   margin-bottom: 10px;
   border-radius: 10px;
   a {
@@ -33,7 +38,7 @@ const Coin = styled.li`
   &:hover {
     background-color: ${(props) => props.theme.accentColor};
     a {
-      color: ${(props) => props.theme.textColor};
+      color: ${(props) => props.theme.bgColor};
     }
   }
 `;
@@ -66,8 +71,8 @@ interface ICoin {
   type: string;
 }
 
-function Coins() {
-  const {isLoading, data} = useQuery<ICoin[]>("allCoins", fetchCoins)
+function Coins({ toggleDark }: ICoinProps) {
+  const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
   /*const [coins, setCoins] = useState<ICoin[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
@@ -83,6 +88,7 @@ function Coins() {
     <Container>
       <Header>
         <Title>코인</Title>
+        <button onClick={toggleDark}>Toggle Mode</button>
       </Header>
       {isLoading ? (
         <Loader>Loading ...</Loader>

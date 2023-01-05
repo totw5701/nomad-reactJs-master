@@ -111,7 +111,7 @@ const BackPage = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: ${props => props.theme.textColor};
 `;
 
 function Coin({ toggleDark }: ICoinProps) {
@@ -189,10 +189,10 @@ function Coin({ toggleDark }: ICoinProps) {
           </Tabs>
 
           <Switch>
-            <Route path="/:coinId/price">
+            <Route path={"/:coinId/price"}>
               <Price priceData={tickerData} infoData={infoData} />
             </Route>
-            <Route path="/:coinId/chart">
+            <Route path={"/:coinId/chart"}>
               <Chart coinId={coinId} />
             </Route>
           </Switch>

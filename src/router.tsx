@@ -8,12 +8,12 @@ interface IRouterProps {
 
 function Router({ toggleDark }: IRouterProps) {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Switch>
-        <Route path="/:coinId">
+        <Route path={"/:coinId"}>
           <Coin toggleDark={toggleDark} />
         </Route>
-        <Route path="/">
+        <Route path={"/"}>
           <Coins toggleDark={toggleDark} />
         </Route>
       </Switch>
